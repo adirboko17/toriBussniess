@@ -1,25 +1,77 @@
 {
   "expo": {
-    "name": "tori-admin",
+    "name": "Tori ניהול",
     "slug": "tori-admin",
+    "scheme": "tori-admin",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "automatic",
+    "backgroundColor": "#f8f8f6",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": false,
+      "bundleIdentifier": "co.il.wetori.admin",
+      "infoPlist": {
+        "CFBundleDevelopmentRegion": "he",
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
+      "package": "co.il.wetori.admin",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#6bff85",
         "foregroundImage": "./assets/android-icon-foreground.png",
-        "backgroundImage": "./assets/android-icon-background.png",
-        "monochromeImage": "./assets/android-icon-monochrome.png"
+        "backgroundImage": "./assets/android-icon-background.png"
       },
+      "softwareKeyboardLayoutMode": "resize",
       "predictiveBackGestureEnabled": false
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      "expo-font",
+      "expo-image",
+      [
+        "expo-localization",
+        {
+          "supportsRTL": true,
+          "forcesRTL": true,
+          "supportedLocales": ["he"]
+        }
+      ],
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 160,
+          "resizeMode": "contain",
+          "backgroundColor": "#f8f8f6",
+          "dark": {
+            "image": "./assets/splash-icon.png",
+            "backgroundColor": "#0f0e0e"
+          }
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "color": "#171616"
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "האפליקציה צריכה גישה לתמונות כדי להעלות לוגו, אייקון ומסך פתיחה לעסק.",
+          "cameraPermission": "האפליקציה צריכה גישה למצלמה כדי לצלם לוגו או אייקון לעסק.",
+          "microphonePermission": false
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": false
     }
   }
 }
