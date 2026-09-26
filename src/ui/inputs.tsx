@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { forwardRef, type ReactNode } from 'react';
 import {
+  I18nManager,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -53,7 +54,7 @@ export const Field = forwardRef<TextInput, FieldProps>(function Field(
             {
               color: theme.text,
               fontFamily: fonts.regular,
-              textAlign: 'left',
+              textAlign: ltr ? (I18nManager.isRTL ? 'left' : 'right') : 'auto',
               writingDirection: ltr ? 'ltr' : 'rtl',
             },
             multiline && { minHeight: 96, textAlignVertical: 'top', paddingTop: 12 },
@@ -97,7 +98,7 @@ export function SearchBar({
         returnKeyType="search"
         autoCorrect={false}
         clearButtonMode="never"
-        style={[styles.searchInput, { color: theme.text, fontFamily: fonts.regular, textAlign: 'left' }]}
+        style={[styles.searchInput, { color: theme.text, fontFamily: fonts.regular, textAlign: 'auto', writingDirection: 'rtl' }]}
         accessibilityLabel={placeholder}
       />
       {value ? (

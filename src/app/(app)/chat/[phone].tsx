@@ -191,7 +191,7 @@ export default function ChatScreen() {
             accessibilityLabel="הודעה"
             style={[
               styles.input,
-              { color: theme.text, backgroundColor: theme.sunken, fontFamily: fonts.regular, textAlign: 'left', writingDirection: 'rtl' },
+              { color: theme.text, backgroundColor: theme.sunken, fontFamily: fonts.regular, textAlign: 'auto', writingDirection: 'rtl' },
             ]}
           />
           <Pressable

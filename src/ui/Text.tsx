@@ -43,7 +43,7 @@ export function Text({ variant = 'body', weight, tone = 'text', color, center, s
     fontSize: v.size,
     lineHeight: v.line,
     color: color ?? toneColor(theme, tone),
-    textAlign: center ? 'center' : 'left',
+    textAlign: center ? 'center' : 'auto',
     writingDirection: 'rtl',
   };
   return <RNText maxFontSizeMultiplier={1.4} {...rest} style={[base, style]} />;

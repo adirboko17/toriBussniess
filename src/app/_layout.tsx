@@ -7,10 +7,11 @@ import {
 } from '@expo-google-fonts/heebo';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
+import * as SecureStore from 'expo-secure-store';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
-import { I18nManager, Platform } from 'react-native';
+import { useEffect, useState } from 'react';
+import { DevSettings, I18nManager, Platform, View } from 'react-native';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { restoreSession } from '@/lib/auth';
 import { useNotificationRouting } from '@/lib/notifications';
@@ -21,7 +22,11 @@ import { FeedbackProvider } from '@/ui/feedback';
 
 void SplashScreen.preventAutoHideAsync();
 
-// Native RTL is forced in app.json; this covers dev clients that start LTR once.
+const RTL_RELOAD_KEY = 'tori_rtl_reload';
+
+// app.json forces RTL only in a dev/production build. Expo Go ignores that, so
+// set the native flag and reload once. A second launch that is still LTR falls
+// through to the style direction below instead of reloading forever.
 if (Platform.OS !== 'web' && !I18nManager.isRTL) {
   I18nManager.allowRTL(true);
   I18nManager.forceRTL(true);
@@ -47,6 +52,7 @@ function RootNavigator() {
 export default function RootLayout() {
   const theme = useTheme();
   const session = useSession();
+  const [rtlReady, setRtlReady] = useState(Platform.OS === 'web' || I18nManager.isRTL);
   const [fontsLoaded, fontError] = useFonts({
     Heebo_400Regular,
     Heebo_500Medium,
@@ -58,7 +64,36 @@ export default function RootLayout() {
     void restoreSession();
   }, []);
 
-  const ready = (fontsLoaded || !!fontError) && session.status !== 'loading';
+  useEffect(() => {
+    if (Platform.OS === 'web' || I18nManager.isRTL) {
+      void SecureStore.deleteItemAsync(RTL_RELOAD_KEY).catch(() => undefined);
+      return;
+    }
+    let cancelled = false;
+    void (async () => {
+      try {
+        const tried = await SecureStore.getItemAsync(RTL_RELOAD_KEY);
+        if (tried === '1') {
+          await SecureStore.deleteItemAsync(RTL_RELOAD_KEY);
+          if (!cancelled) setRtlReady(true);
+          return;
+        }
+        await SecureStore.setItemAsync(RTL_RELOAD_KEY, '1');
+        if (typeof DevSettings.reload === 'function') {
+          DevSettings.reload();
+          return;
+        }
+      } catch {
+        // SecureStore or reload failed: show the style-based RTL layout.
+      }
+      if (!cancelled) setRtlReady(true);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const ready = (fontsLoaded || !!fontError) && session.status !== 'loading' && rtlReady;
   useEffect(() => {
     if (ready) void SplashScreen.hideAsync();
   }, [ready]);
@@ -80,15 +115,17 @@ export default function RootLayout() {
   };
 
   return (
-    <KeyboardProvider>
-      <QueryClientProvider client={queryClient}>
-        <ThemeProvider value={navTheme}>
-          <FeedbackProvider>
-            <StatusBar style={theme.scheme === 'dark' ? 'light' : 'dark'} />
-            <RootNavigator />
-          </FeedbackProvider>
-        </ThemeProvider>
-      </QueryClientProvider>
-    </KeyboardProvider>
+    <View style={{ flex: 1, direction: 'rtl' }}>
+      <KeyboardProvider>
+        <QueryClientProvider client={queryClient}>
+          <ThemeProvider value={navTheme}>
+            <FeedbackProvider>
+              <StatusBar style={theme.scheme === 'dark' ? 'light' : 'dark'} />
+              <RootNavigator />
+            </FeedbackProvider>
+          </ThemeProvider>
+        </QueryClientProvider>
+      </KeyboardProvider>
+    </View>
   );
 }

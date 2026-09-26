@@ -10,7 +10,7 @@
     "backgroundColor": "#f8f8f6",
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "co.il.wetori.admin",
+      "bundleIdentifier": "il.co.wetori.business",
       "infoPlist": {
         "CFBundleDevelopmentRegion": "he",
         "ITSAppUsesNonExemptEncryption": false,
