@@ -1,6 +1,6 @@
 import { getToken, notifyUnauthorized } from './session';
 
-export const API_URL = (process.env.EXPO_PUBLIC_API_URL || 'https://wetori.co.il').replace(/\/+$/, '');
+export const API_URL = (process.env.EXPO_PUBLIC_API_URL || 'https://www.wetori.co.il').replace(/\/+$/, '');
 
 export type ApiErrorKind = 'http' | 'offline' | 'timeout' | 'auth';
 

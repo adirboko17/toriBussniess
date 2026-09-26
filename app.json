@@ -13,7 +13,12 @@
       "bundleIdentifier": "co.il.wetori.admin",
       "infoPlist": {
         "CFBundleDevelopmentRegion": "he",
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "ExpoLocalization_supportsRTL": true,
+        "ExpoLocalization_forcesRTL": true,
+        "CFBundleLocalizations": [
+          "he"
+        ]
       }
     },
     "android": {
@@ -39,7 +44,9 @@
         {
           "supportsRTL": true,
           "forcesRTL": true,
-          "supportedLocales": ["he"]
+          "supportedLocales": [
+            "he"
+          ]
         }
       ],
       [
@@ -72,6 +79,13 @@
     ],
     "experiments": {
       "typedRoutes": false
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "de0574dd-3c50-43cc-a8bd-4d45b6c6450a"
+      }
+    },
+    "owner": "itaybenyair"
   }
 }
