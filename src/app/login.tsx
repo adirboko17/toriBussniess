@@ -4,7 +4,7 @@ import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { errorMessage } from '@/lib/api';
-import { sendOtp, verifyOtp } from '@/lib/auth';
+import { startLogin, verifyOtp } from '@/lib/auth';
 import { formatPhone, isIsraeliMobile, ltr, normalizeIsraeliMobile } from '@/lib/format';
 import { radius, space, useTheme } from '@/lib/theme';
 import { Field } from '@/ui/inputs';
@@ -20,12 +20,12 @@ export default function LoginScreen() {
   const [phone, setPhone] = useState('');
   const [code, setCode] = useState('');
   const [otpToken, setOtpToken] = useState('');
-  const [sentTo, setSentTo] = useState('');
+  const [phoneForCode, setPhoneForCode] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const codeRef = useRef<TextInput>(null);
 
-  async function requestCode() {
+  async function continueWithPhone() {
     setError(null);
     if (!isIsraeliMobile(phone)) {
       setError('צריך להזין מספר נייד ישראלי תקין.');
@@ -33,14 +33,15 @@ export default function LoginScreen() {
     }
     setBusy(true);
     try {
-      const result = await sendOtp(normalizeIsraeliMobile(phone));
+      const result = await startLogin(normalizeIsraeliMobile(phone));
+      if (!result.otpToken) throw new Error('לא ניתן להמשיך. נסו שוב.');
       setOtpToken(result.otpToken);
-      setSentTo(result.phone);
+      setPhoneForCode(result.phone);
       setCode('');
       setStep('code');
       setTimeout(() => codeRef.current?.focus(), 250);
     } catch (e) {
-      setError(errorMessage(e, 'שליחת הקוד נכשלה.'));
+      setError(errorMessage(e, 'לא ניתן להמשיך. נסו שוב.'));
     } finally {
       setBusy(false);
     }
@@ -94,18 +95,18 @@ export default function LoginScreen() {
                 textContentType="telephoneNumber"
                 autoComplete="tel"
                 ltr
-                returnKeyType="send"
-                onSubmitEditing={requestCode}
+                returnKeyType="done"
+                onSubmitEditing={continueWithPhone}
                 error={error}
                 maxLength={14}
                 autoFocus
               />
-              <Button label="שליחת קוד" onPress={requestCode} loading={busy} />
+              <Button label="המשך" onPress={continueWithPhone} loading={busy} />
             </>
           ) : (
             <>
               <Text tone="muted">
-                שלחנו קוד בן 6 ספרות ל-{ltr(formatPhone(sentTo))}
+                הזינו קוד בן 6 ספרות עבור {ltr(formatPhone(phoneForCode))}
               </Text>
               <TextInput
                 ref={codeRef}
@@ -117,8 +118,8 @@ export default function LoginScreen() {
                   if (digits.length === 6) void submitCode(digits);
                 }}
                 keyboardType="number-pad"
-                textContentType="oneTimeCode"
-                autoComplete="one-time-code"
+                textContentType="none"
+                autoComplete="off"
                 maxLength={6}
                 editable={!busy}
                 accessibilityLabel="קוד אימות"
@@ -141,9 +142,9 @@ export default function LoginScreen() {
               ) : null}
               <Button label="כניסה" onPress={() => void submitCode()} loading={busy} />
               <View style={styles.links}>
-                <Pressable onPress={() => void requestCode()} disabled={busy} hitSlop={8}>
+                <Pressable onPress={() => void continueWithPhone()} disabled={busy} hitSlop={8}>
                   <Text tone="link" weight="medium">
-                    שליחת קוד חדש
+                    בקשה חדשה
                   </Text>
                 </Pressable>
                 <Pressable

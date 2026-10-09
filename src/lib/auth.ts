@@ -24,8 +24,8 @@ export async function restoreSession() {
   await clearLocalSession();
 }
 
-export async function sendOtp(phone: string) {
-  return api<{ phone: string; otpToken: string }>('/api/admin/send-otp', {
+export async function startLogin(phone: string) {
+  return api<{ phone: string; otpToken: string }>('/api/admin/start-login', {
     method: 'POST',
     body: { phone, client: 'mobile' },
   });
